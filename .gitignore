@@ -1,0 +1,15 @@
+# IDE
+.idea
+
+# npm
+node_modules
+package-lock.json
+
+# ts
+dist
+
+# dotenv
+.env
+
+# screenshots
+*.png
