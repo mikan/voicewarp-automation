@@ -1,0 +1,24 @@
+{
+  "name": "VoiceWarp Automation",
+  "description": "NTT 東日本のひかり電話のボイスワープの転送先設定の切り替え作業を自動化します。",
+  "repository": "https://github.com/mikan/voicewarp-automation",
+  "website": "https://github.com/mikan/voicewarp-automation",
+  "logo": "https://github.com/mikan.png",
+  "keywords": [
+    "voicewarp",
+    "puppeteer"
+  ],
+  "addons": [
+    {
+      "plan": "temporize:developer"
+    }
+  ],
+  "env": {
+    "PHONE_NO": {
+      "description": "電話番号"
+    },
+    "PASSWORD": {
+      "description": "パスワード"
+    }
+  }
+}
