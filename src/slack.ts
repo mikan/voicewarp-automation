@@ -1,4 +1,4 @@
-import http from "http"
+import https from "https"
 import {URL} from "url"
 
 export default function slackPost(url: string, content: string): void {
@@ -13,7 +13,7 @@ export default function slackPost(url: string, content: string): void {
             "Content-Length": Buffer.byteLength(content),
         },
     }
-    const req = http.request(options, (res) => res.setEncoding("utf8"))
+    const req = https.request(options, (res) => res.setEncoding("utf8"))
     req.on("error", (e) => {
         console.error("failed to post slack: " + e.message)
     })
