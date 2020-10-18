@@ -79,7 +79,7 @@ app.post("/slack/slash", (req, res) => {
         return
     }
     res.json({
-        response_type: 'in_channel',
+        response_type: "in_channel",
         text: "", // タイムアウト対策として一旦空を返却し、後で response_url に本文を POST します
     })
     const responseUrl = req.body["response_url"]
