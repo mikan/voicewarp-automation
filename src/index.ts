@@ -2,6 +2,7 @@ import express from "express"
 import * as fs from "fs"
 import * as dotenv from "dotenv"
 import switchListNumber, {successPrefix} from "./switch"
+import slackPost from "./slack"
 
 dotenv.config()
 const listNumbers = ["1", "2", "3", "4"]
@@ -77,19 +78,23 @@ app.post("/slack/slash", (req, res) => {
         res.send("不正なリスト番号です: " + text)
         return
     }
+    const responseUrl = req.body["response_url"]
     void (async () => {
         const result = await switchListNumber(endpoint, phoneNumber, password, text) || "不明なエラーです"
         if (!result.startsWith(successPrefix)) {
-            res.json({
+            slackPost(responseUrl, JSON.stringify({
                 response_type: "in_channel",
                 text: result,
                 attachments: [{
                     image_url: selfUrl(req) + "latest-error.png",
                 }],
-            })
+            }))
             return
         }
-        res.send(result)
+        slackPost(responseUrl, JSON.stringify({
+            response_type: "in_channel",
+            text: result,
+        }))
     })()
 })
 
