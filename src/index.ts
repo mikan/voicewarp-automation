@@ -78,7 +78,10 @@ app.post("/slack/slash", (req, res) => {
         res.send("不正なリスト番号です: " + text)
         return
     }
-    res.send("") // タイムアウト対策として一旦空を返却し、後で response_url に本文を POST します
+    res.json({
+        response_type: 'in_channel',
+        text: "", // タイムアウト対策として一旦空を返却し、後で response_url に本文を POST します
+    })
     const responseUrl = req.body["response_url"]
     void (async () => {
         const result = await switchListNumber(endpoint, phoneNumber, password, text) || "不明なエラーです"
