@@ -1,14 +1,14 @@
 import * as puppeteer from "puppeteer"
 
-export default async function switchListNumber(endpoint: string, phoneNumber: string, password: string, switchTo: string) {
-    const browser = await puppeteer.launch({headless: true})
+export default async function switchListNumber(endpoint: string, phone: string, password: string, switchTo: string) {
+    const browser = await puppeteer.launch({args: ['--no-sandbox']}) // Heroku の制約により sandbox 無効化
     const page = await browser.newPage()
 
     console.log("ログイン画面を開いています...")
     await page.goto(endpoint + "AGL_Disp.do")
 
     console.log("電話番号とパスワードを入力しています...")
-    await page.type("input[name=phoneNo]", phoneNumber)
+    await page.type("input[name=phoneNo]", phone)
     await page.type("input[name=pass]", password)
 
     console.log("\"ログイン\" ボタンをクリックしています...")

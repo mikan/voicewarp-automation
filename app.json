@@ -13,6 +13,14 @@
       "plan": "temporize:developer"
     }
   ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "https://github.com/CoffeeAndCode/puppeteer-heroku-buildpack"
+    }
+  ],
   "env": {
     "PHONE_NO": {
       "description": "電話番号"
