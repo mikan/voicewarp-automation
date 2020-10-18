@@ -1,9 +1,11 @@
-import * as http from "http"
+import express from "express"
 import * as fs from "fs"
 import * as dotenv from "dotenv"
-import switchListNumber from "./switch";
+import switchListNumber, {successPrefix} from "./switch"
 
 dotenv.config()
+const listNumbers = ["1", "2", "3", "4"]
+const defaultPort = "3000"
 const endpoint = process.env.ENDPOINT || "https://www.hikari.ntt-east.net/"
 const phoneNumber = process.env.PHONE_NO
 if (!phoneNumber) {
@@ -16,65 +18,82 @@ if (!password) {
     process.exit(1)
 }
 
-const handleSwitch = (res: http.ServerResponse, switchTo: string) => {
-    void (async () => {
-        const msg = await switchListNumber(endpoint, phoneNumber, password, switchTo)
-        if (msg === "") {
-            res.writeHead(200, {"Content-Type": "text/plain"})
-            res.write("Success")
-            res.end()
-        } else {
-            res.writeHead(500, {"Content-Type": "text/plain"})
-            res.write(msg || "不明なエラーです")
-            res.end()
-        }
-    })()
+const selfUrl = (req: express.Request): string => {
+    const host = req.header("Host")
+    if (!host || host.includes("localhost")) {
+        return `http://localhost:${defaultPort}/`
+    }
+    return `https://${host}/`
 }
 
-const handleFile = (res: http.ServerResponse, path: string) => {
+const fileResponse = (res: express.Response, path: string) => {
     if (fs.existsSync(path)) {
-        res.writeHead(200, {"Content-Type": "image/png"})
-        fs.createReadStream(path).pipe(res)
+        res.setHeader("Content-Type", "image/png")
+        res.sendFile(__dirname.replace("/dist", "/").replace("/src", "/") + path)
     } else {
-        res.writeHead(404, {"Content-Type": "text/plain"})
-        res.write("Not found")
-        res.end()
+        res.status(404).send("Not found")
     }
 }
 
-const server = http.createServer()
-server.on("request", function (req, res) {
-    switch (req.url) {
-        case "/":
-            res.writeHead(200, {"Content-Type": "text/plain"})
-            res.write("Hello, world!")
-            res.end()
-            break
-        case "/switch/1":
-            handleSwitch(res, "1")
-            break
-        case "/switch/2":
-            handleSwitch(res, "2")
-            break
-        case "/switch/3":
-            handleSwitch(res, "3")
-            break
-        case "/switch/4":
-            handleSwitch(res, "4")
-            break
-        case "/latest-result.png":
-            handleFile(res, "result.png")
-            break
-        case "/latest-error.png":
-            handleFile(res, "error.png")
-            break
-        default:
-            res.writeHead(404, {"Content-Type": "text/plain"})
-            res.write("Not found")
-            res.end()
-            break
-    }
+const app = express()
+app.use(express.json())
+app.use(express.urlencoded({extended: true}))
+app.get("/", (req, res) => {
+    res.send("It works!")
 })
-const port = process.env.PORT || "8080"
-console.log(`server listening at port ${port}`)
-server.listen(port)
+app.get("/switch/:listNumber", (req, res) => {
+    const switchTo = req.params["listNumber"]
+    if (!listNumbers.includes(switchTo)) {
+        res.status(404).send("Not found")
+        return
+    }
+    void (async () => {
+        const result = await switchListNumber(endpoint, phoneNumber, password, switchTo) || "不明なエラーです"
+        if (!result.startsWith(successPrefix)) {
+            res.status(500).send(result)
+            return
+        }
+        res.send(result)
+    })()
+})
+app.get("/latest-result.png", (req, res) => {
+    fileResponse(res, "./result.png")
+})
+app.get("/latest-error.png", (req, res) => {
+    fileResponse(res, "./error.png")
+})
+app.post("/slack/slash", (req, res) => {
+    const expectedToken = process.env.SLACK_SLASH_TOKEN
+    if (expectedToken && expectedToken != req.body["token"]) {
+        res.status(403).send("Forbidden")
+        return
+    }
+    const text = req.body["text"]
+    if (text === "") {
+        res.send("リスト番号 (" + listNumbers.join(", ") + ") 指定してください")
+        return
+    }
+    if (!listNumbers.includes(text)) {
+        res.send("不正なリスト番号です: " + text)
+        return
+    }
+    void (async () => {
+        const result = await switchListNumber(endpoint, phoneNumber, password, text) || "不明なエラーです"
+        if (!result.startsWith(successPrefix)) {
+            res.json({
+                response_type: "in_channel",
+                text: result,
+                attachments: [{
+                    image_url: selfUrl(req) + "latest-error.png",
+                }],
+            })
+            return
+        }
+        res.send(result)
+    })()
+})
+
+const port = process.env.PORT || defaultPort
+app.listen(port, () => {
+    console.log(`server listening at port ${port}`)
+})

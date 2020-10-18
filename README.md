@@ -18,6 +18,13 @@ NTT 東日本のひかり電話のボイスワープの転送先設定の切り�
 - `PHONE_NO` - ログインに使う電話番号
 - `PASSWORD` - ログインに使う現在のパスワード
 
+ローカルで動かす場合は以下のような `.env` ファイルを作ると便利です:
+
+```
+PHONE_NO=xxxxxxxxxx
+PASSWORD=xxxxxxxxxx
+```
+
 ## スケジュール設定
 
 Temporise Scheduler の Recurring event で以下を登録することで、切り替えが実行されます。

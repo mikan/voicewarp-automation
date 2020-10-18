@@ -11,6 +11,7 @@
     "outDir": "dist",
     "strict": true,
     "skipLibCheck": true,
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true
   },
