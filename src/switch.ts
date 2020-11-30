@@ -25,7 +25,21 @@ export default async function switchListNumber(endpoint: string, phone: string, 
         return await failure(browser, page, "サービス選択画面への遷移に失敗しました")
     }
 
-    // TODO: パスワード有効期限接近画面に遭遇した場合は新しいパスワードを自動生成、設定、保存する
+    // TODO: パスワード有効期限切れ画面に遭遇した場合は、新しいパスワードを自動生成、設定、保存する
+
+    const passwordNotice = await page.$(".mes_error_center_new")
+    if (passwordNotice) {
+        console.log("パスワード期限予告の \"OK\" ボタンをクリックしています...")
+        const okButton = await page.$("input[alt=OK]")
+        if (!okButton) {
+            return await failure(browser, page, "パスワード期限予告の \"OK\" ボタンを発見できませんでした")
+        }
+        await okButton.click()
+        await page.waitForNavigation()
+        if (!page.url().endsWith("AGS_Disp.do")) {
+            return await failure(browser, page, "サービス選択画面への遷移に失敗しました")
+        }
+    }
 
     console.log("\"ボイスワープ\" ボタンをクリックしています...")
     const voiceWarpButton = await page.$("input[alt=ボイスワープ]")
