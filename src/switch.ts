@@ -25,9 +25,8 @@ export default async function switchListNumber(endpoint: string, phone: string, 
         return await failure(browser, page, "サービス選択画面への遷移に失敗しました")
     }
 
-    // TODO: パスワード有効期限切れ画面遭遇した場合は新しいパスワードを自動生成、設定、保存する
+    // TODO: パスワード有効期限切れ画面に遭遇した場合は、新しいパスワードを自動生成、設定、保存する
 
-    // パスワード期限予告がある場合は、確認ボタンを押す
     const passwordNotice = await page.$(".mes_error_center_new")
     if (passwordNotice) {
         console.log("パスワード期限予告の \"OK\" ボタンをクリックしています...")
