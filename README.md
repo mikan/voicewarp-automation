@@ -40,6 +40,27 @@ Slack の Slash Command で操作することが可能です。
 なお、Slash Command 作成時に発行するトークンを `SLACK_SLASH_TOKEN` config vars に設定すると、そのトークン以外からの呼び出しをブロックすることができます。
 セキュリティのため設定をお勧めします。
 
+## Heroku のパスワード更新
+
+Heroku の Config Vars のパスワードも Slash Command で変更することが可能です。
+なお、安全のため REST API では提供していません。
+
+設定には予め以下を実施する必要があります:
+ 
+- Heroku CLI でトークンを生成
+- `PLATFORM_TOKEN` Config Vars に設定
+- [Dyno Metadata](https://devcenter.heroku.com/articles/dyno-metadata) の有効化
+
+コマンド操作は以下の通りです:
+
+```
+$ heroku authorizations:create -d "voicewarp"
+$ heroku config:set --app <APP_NAME> PLATFORM_TOKEN=<TOKEN>
+$ heroku labs:enable runtime-dyno-metadata -a <APP_NAME>
+```
+
+
+
 ## 開発
 
 ローカルで実行するには、はじめに Node.js を用意した上で以下のコマンドを実行します:

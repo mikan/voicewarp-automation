@@ -3,6 +3,7 @@ import * as fs from "fs"
 import * as dotenv from "dotenv"
 import switchListNumber, {successPrefix} from "./switch"
 import slackPost from "./slack"
+import updateHerokuConfigVar from "./heroku";
 
 dotenv.config()
 const listNumbers = ["1", "2", "3", "4"]
@@ -72,6 +73,15 @@ app.post("/slack/slash", (req, res) => {
     const text = req.body["text"]
     if (text === "") {
         res.send("リスト番号 (" + listNumbers.join(", ") + ") 指定してください")
+        return
+    }
+    if (text.startsWith("heroku PASSWORD=")) {
+        const newPassword = text.replace("heroku PASSWORD=", "")
+        if (newPassword === "") {
+            res.send("パスワードを指定してください")
+            return
+        }
+        updateHerokuConfigVar("PASSWORD", newPassword)
         return
     }
     if (!listNumbers.includes(text)) {

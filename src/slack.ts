@@ -15,7 +15,7 @@ export default function slackPost(url: string, content: string): void {
     }
     const req = https.request(options, (res) => res.setEncoding("utf8"))
     req.on("error", (e) => {
-        console.error("failed to post slack: " + e.message)
+        console.error("Slack 投稿に失敗しました: " + e.message)
     })
     req.write(content)
     req.end()
