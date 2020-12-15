@@ -77,15 +77,15 @@ app.post("/slack/slash", (req, res) => {
     }
     const responseUrl = req.body["response_url"]
     if (text.startsWith("heroku PASSWORD=")) {
-        res.json({
-            response_type: "in_channel",
-            text: "", // タイムアウト対策として一旦空を返却し、後で response_url に本文を POST します
-        })
         const newPassword = text.replace("heroku PASSWORD=", "")
         if (newPassword === "") {
             res.send("パスワードを指定してください")
             return
         }
+        res.json({
+            response_type: "in_channel",
+            text: "", // タイムアウト対策として一旦空を返却し、後で response_url に本文を POST します
+        })
         const result = updateHerokuConfigVar("PASSWORD", newPassword)
         slackPost(responseUrl, JSON.stringify({
             response_type: "in_channel",
