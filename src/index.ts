@@ -117,6 +117,13 @@ app.post("/slack/slash", (req, res) => {
 })
 
 const port = process.env.PORT || defaultPort
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`server listening at port ${port}`)
 })
+const gracefulShutdown = function () {
+    server.close(function () {
+        process.exit()
+    })
+}
+process.on('SIGTERM', gracefulShutdown)
+process.on('SIGINT', gracefulShutdown)
