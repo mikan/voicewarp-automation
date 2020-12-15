@@ -125,5 +125,5 @@ const gracefulShutdown = function () {
         process.exit()
     })
 }
-process.on('SIGTERM', gracefulShutdown)
-process.on('SIGINT', gracefulShutdown)
+process.on("SIGTERM", gracefulShutdown)
+process.on("SIGINT", gracefulShutdown)
