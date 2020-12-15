@@ -4,12 +4,11 @@ voicewarp-automation
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/mikan/voicewarp-automation)
 
 NTT 東日本のひかり電話のボイスワープの転送先設定の切り替え作業を自動化します。
+また、パスワードの有効期限が切れた際は自動的に新しいパスワードを生成して設定、通知します。
 
 ## 必要なもの
 
 [Heroku](https://jp.heroku.com/) で動作させることを前提としており、Heroku へデプロイした後に Heroku Add-ons の [Temporise Scheduler](https://elements.heroku.com/addons/temporize) でスケジュールを設定し、転送先設定を切り替えることで動作します。
-
-また、将来的にパスワードの自動更新を行う際には Heroku の config vars をアプリから直接変更することを考えています。
 
 ## 基本設定
 
@@ -17,13 +16,6 @@ NTT 東日本のひかり電話のボイスワープの転送先設定の切り�
 
 - `PHONE_NO` - ログインに使う電話番号
 - `PASSWORD` - ログインに使う現在のパスワード
-
-ローカルで動かす場合は以下のような `.env` ファイルを作ると便利です:
-
-```
-PHONE_NO=xxxxxxxxxx
-PASSWORD=xxxxxxxxxx
-```
 
 ## スケジュール設定
 
@@ -47,6 +39,30 @@ Slack の Slash Command で操作することが可能です。
 
 なお、Slash Command 作成時に発行するトークンを `SLACK_SLASH_TOKEN` config vars に設定すると、そのトークン以外からの呼び出しをブロックすることができます。
 セキュリティのため設定をお勧めします。
+
+## 開発
+
+ローカルで実行するには、はじめに Node.js を用意した上で以下のコマンドを実行します:
+
+```
+npm i
+```
+
+次に、電話番号とパスワードを伝えるために以下のような `.env` ファイルを作ります:
+
+```
+PHONE_NO=xxxxxxxxxx
+PASSWORD=xxxxxxxxxx
+```
+
+サーバープログラムを起動するには、以下のコマンドを実行します:
+
+```
+npm run dev
+```
+
+サーバーは localhost:3000 で起動します。
+ブラウザや curl 等を用いて利用してください。
 
 ## ライセンス
 

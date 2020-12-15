@@ -6,6 +6,7 @@ export const failurePrefix = "[失敗] "
 export default async function switchListNumber(endpoint: string, phone: string, password: string, switchTo: string): Promise<string> {
     const browser = await puppeteer.launch({args: ["--no-sandbox"]}) // Heroku の制約により sandbox 無効化
     const page = await browser.newPage()
+    let newPassword = "" // 変更しない場合は空のまま
 
     console.log("ログイン画面を開いています...")
     await page.goto(endpoint + "AGL_Disp.do")
@@ -25,8 +26,6 @@ export default async function switchListNumber(endpoint: string, phone: string, 
         return await failure(browser, page, "サービス選択画面への遷移に失敗しました")
     }
 
-    // TODO: パスワード有効期限切れ画面に遭遇した場合は、新しいパスワードを自動生成、設定、保存する
-
     const passwordNotice = await page.$(".mes_error_center_new")
     if (passwordNotice) {
         console.log("パスワード期限予告の \"OK\" ボタンをクリックしています...")
@@ -38,6 +37,50 @@ export default async function switchListNumber(endpoint: string, phone: string, 
         await page.waitForNavigation()
         if (!page.url().endsWith("AGS_Disp.do")) {
             return await failure(browser, page, "サービス選択画面への遷移に失敗しました")
+        }
+    }
+
+    const passwordChangeButton = await page.$(".btn_login > input[alt=パスワード変更]")
+    if (passwordChangeButton) {
+        console.log("新しいパスワードを生成して入力しています...")
+        newPassword = Math.random().toString(36).substr(2, 9)
+        await page.type("#culpass", password)
+        await page.type("#newPass", newPassword)
+        await page.type("#confirmpass", newPassword)
+        console.log("新しいパスワード: " + newPassword)
+
+        console.log("\"パスワード変更\" ボタンをクリックしています...")
+        const passwordChangeButton = await page.$("input[alt=パスワード変更]")
+        if (!passwordChangeButton) {
+            return await failure(browser, page, "\"パスワード変更\" ボタンを発見できませんでした")
+        }
+        await passwordChangeButton.click()
+        await page.waitForNavigation()
+
+        console.log("パスワード変更完了画面の \"ログイン画面へ戻る\" ボタンをクリックしています...")
+        const okButton = await page.$("input[alt=ログイン画面へ戻る]")
+        if (!okButton) {
+            return await failure(browser, page, "パスワード変更完了画面の \"ログイン画面へ戻る\" ボタンを発見できませんでした")
+        }
+        await okButton.click()
+        await page.waitForNavigation()
+        if (!page.url().endsWith("AGL_Login.do")) {
+            return await failure(browser, page, "サービス選択画面への遷移に失敗しました")
+        }
+
+        console.log("(再) 電話番号とパスワードを入力しています...")
+        await page.type("input[name=phoneNo]", phone)
+        await page.type("input[name=pass]", newPassword)
+
+        console.log("(再) \"ログイン\" ボタンをクリックしています...")
+        const loginButton = await page.$("input[alt=ログイン]")
+        if (!loginButton) {
+            return await failure(browser, page, "(再) \"ログイン\" ボタンを発見できませんでした")
+        }
+        await loginButton.click()
+        await page.waitForNavigation()
+        if (!page.url().endsWith("AGL_Login.do")) {
+            return await failure(browser, page, "(再) サービス選択画面への遷移に失敗しました")
         }
     }
 
@@ -103,7 +146,11 @@ export default async function switchListNumber(endpoint: string, phone: string, 
     }
 
     console.log("設定が完了しました")
-    return await success(browser, page, `リスト番号を ${checkedValue} から ${switchTo} に切り替えました`)
+    let message = `リスト番号を ${checkedValue} から ${switchTo} に切り替えました`
+    if (newPassword !== "") {
+        message = "パスワードを `" + newPassword + "` に変更し、" + message
+    }
+    return await success(browser, page, message)
 }
 
 async function success(browser: puppeteer.Browser, page: puppeteer.Page, msg: string) {
