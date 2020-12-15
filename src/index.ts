@@ -3,7 +3,7 @@ import * as fs from "fs"
 import * as dotenv from "dotenv"
 import switchListNumber, {successPrefix} from "./switch"
 import slackPost from "./slack"
-import updateHerokuConfigVar from "./heroku";
+import updateHerokuConfigVar from "./heroku"
 
 dotenv.config()
 const listNumbers = ["1", "2", "3", "4"]

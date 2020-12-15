@@ -146,7 +146,7 @@ export default async function switchListNumber(endpoint: string, phone: string, 
     }
 
     console.log("設定が完了しました")
-    let message = `リスト番号を ${checkedValue} から ${switchTo} に切り替えました`
+    const message = `リスト番号を ${checkedValue} から ${switchTo} に切り替えました`
     return await success(browser, page, newPassword, message)
 }
 

@@ -59,7 +59,7 @@ $ heroku config:set --app <APP_NAME> PLATFORM_TOKEN=<TOKEN>
 $ heroku labs:enable runtime-dyno-metadata -a <APP_NAME>
 ```
 
-
+これで、 `/<設定したコマンド> heroku PASSWORD=<PASSWORD>` (例: `/voicewarp heroku PASSWORD=foo`) という Slash Command で新しいパスワードを Config Var に設定できるようになります。
 
 ## 開発
 

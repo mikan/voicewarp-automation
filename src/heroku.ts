@@ -1,5 +1,5 @@
 import https from "https"
-import {failurePrefix, successPrefix} from "./switch";
+import {failurePrefix, successPrefix} from "./switch"
 
 export default function updateHerokuConfigVar(key: string, password: string): string {
     if (!process.env.HEROKU_APP_NAME) {
@@ -9,7 +9,7 @@ export default function updateHerokuConfigVar(key: string, password: string): st
         return failurePrefix + "Heroku Platform API 用トークンを設定してください"
     }
     const content = JSON.stringify({
-        PASSWORD: password
+        PASSWORD: password,
     })
     const options = {
         host: "api.heroku.com",
@@ -20,7 +20,7 @@ export default function updateHerokuConfigVar(key: string, password: string): st
             "Content-Type": "application/json",
             "Content-Length": Buffer.byteLength(content),
             "Accept": "application/vnd.heroku+json; version=3",
-            "Authorization": "Bearer " + process.env.PLATFORM_TOKEN
+            "Authorization": "Bearer " + process.env.PLATFORM_TOKEN,
         },
     }
     const req = https.request(options, (res) => res.setEncoding("utf8"))
