@@ -27,6 +27,10 @@
     },
     "PASSWORD": {
       "description": "パスワード"
+    },
+    "PLATFORM_TOKEN": {
+      "description": "パスワード自動更新時に Config Var も自動で更新する場合に設定",
+      "required": false
     }
   }
 }
